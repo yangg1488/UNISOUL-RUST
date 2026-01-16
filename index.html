@@ -2,160 +2,833 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>UNISOUL RUST — Rust сервер для новичков</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="UNISOUL RUST — комфортный Rust сервер x2 для новичков. Вайп каждую пятницу.">
+    <title>UNISOUL RUST | Комфортный сервер для новичков</title>
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #0e0e0e;
-            color: #fff;
+        /* Базовые стили и цветовая палитра */
+        :root {
+            --primary-dark: #1a1a2e;
+            --accent-rust: #ff6b35;
+            --accent-gold: #ffd166;
+            --light-bg: #2d3047;
+            --text-light: #f1faee;
+            --text-dim: #a8dadc;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
         }
-        a { color: #6fa8ff; text-decoration: none; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, #16213e 100%);
+            color: var(--text-light);
+            line-height: 1.6;
+            background-image: url('https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1600');
+            background-size: cover;
+            background-blend-mode: overlay;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
 
         .container {
-            width: 90%;
             max-width: 1200px;
-            margin: auto;
-        }
-
-        header {
-            background: linear-gradient(120deg, #1b1b1b, #111);
-            padding: 80px 0;
-            text-align: center;
-        }
-
-        header h1 {
-            font-size: 48px;
-            margin-bottom: 10px;
-        }
-
-        header p {
-            font-size: 18px;
-            opacity: 0.8;
-        }
-
-        .btn {
-            display: inline-block;
-            margin-top: 25px;
-            padding: 14px 28px;
-            background: #6fa8ff;
-            color: #000;
-            font-weight: bold;
-            border-radius: 6px;
-        }
-
-        section {
-            margin: 60px 0;
-        }
-
-        .servers {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background: #161616;
-            border-radius: 10px;
+            margin: 0 auto;
             padding: 20px;
         }
 
-        .card h3 {
-            margin-top: 0;
+        /* Шапка */
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(26, 26, 46, 0.92);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border-bottom: 4px solid var(--accent-rust);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
         }
 
-        .connect {
-            background: #222;
-            padding: 10px;
-            border-radius: 6px;
+        .server-title {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+            color: var(--accent-gold);
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.9);
+            letter-spacing: 1.5px;
+            font-weight: 800;
+            background: linear-gradient(to right, #ffd166, #ff9e6d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .server-subtitle {
+            font-size: 1.3em;
+            color: var(--text-dim);
+            margin-bottom: 25px;
+            font-weight: 300;
+        }
+
+        /* Блок онлайн-статуса */
+        .online-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent-rust), #ff8a50);
+            color: white;
+            padding: 18px 35px;
+            border-radius: 15px;
+            font-size: 1.5em;
+            font-weight: bold;
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.5);
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            min-width: 300px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .online-badge:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(255, 107, 53, 0.6);
+        }
+
+        .online-badge.high {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.5);
+        }
+
+        .online-badge.medium {
+            background: linear-gradient(135deg, #ff9800, #ffb74d);
+            box-shadow: 0 8px 25px rgba(255, 152, 0, 0.5);
+        }
+
+        .server-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 12px;
+            font-size: 0.9em;
+        }
+
+        .status-indicator {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-online {
+            background-color: #4CAF50;
+            box-shadow: 0 0 12px #4CAF50;
+            animation: pulse-green 2s infinite;
+        }
+
+        .status-offline {
+            background-color: #f44336;
+            box-shadow: 0 0 12px #f44336;
+        }
+
+        .status-checking {
+            background-color: #ff9800;
+            box-shadow: 0 0 12px #ff9800;
+            animation: pulse-orange 1.5s infinite;
+        }
+
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        }
+
+        @keyframes pulse-orange {
+            0% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 152, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0); }
+        }
+
+        .online-details {
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.8);
             margin-top: 10px;
-            font-family: monospace;
+            font-weight: 300;
         }
 
+        .last-update {
+            font-size: 0.75em;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 5px;
+        }
+
+        .refresh-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-size: 0.8em;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Основные разделы */
+        .section-title {
+            text-align: center;
+            font-size: 2.2em;
+            color: var(--accent-gold);
+            margin: 50px 0 30px 0;
+            position: relative;
+        }
+
+        .section-title:after {
+            content: '';
+            display: block;
+            width: 120px;
+            height: 4px;
+            background: linear-gradient(to right, transparent, var(--accent-rust), transparent);
+            margin: 15px auto;
+            border-radius: 2px;
+        }
+
+        /* Карточки особенностей */
         .features {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .feature-card {
+            background: rgba(45, 48, 71, 0.85);
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 6px solid var(--accent-rust);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            border-left-color: var(--accent-gold);
+        }
+
+        .feature-card h3 {
+            color: var(--accent-gold);
+            margin-top: 0;
+            font-size: 1.6em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Раздел правил */
+        .rules-container {
+            max-width: 900px;
+            margin: 0 auto 50px;
+        }
+
+        .rules-accordion {
+            background: rgba(45, 48, 71, 0.85);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .rules-item {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .rules-item:last-child {
+            border-bottom: none;
+        }
+
+        .rules-header {
+            padding: 22px 30px;
+            background: rgba(26, 26, 46, 0.8);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .rules-header:hover {
+            background: rgba(255, 107, 53, 0.15);
+        }
+
+        .rules-header.active {
+            background: rgba(255, 107, 53, 0.25);
+            border-left: 5px solid var(--accent-rust);
+        }
+
+        .rules-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: var(--accent-gold);
+            display: flex;
+            align-items: center;
             gap: 15px;
         }
 
-        footer {
-            background: #0a0a0a;
-            padding: 30px 0;
-            font-size: 14px;
-            opacity: 0.7;
+        .rules-icon {
+            font-size: 1.3em;
+        }
+
+        .rules-arrow {
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            font-size: 1.3em;
+            color: var(--accent-gold);
+        }
+
+        .rules-header.active .rules-arrow {
+            transform: rotate(180deg);
+        }
+
+        .rules-content {
+            padding: 0 30px;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .rules-content.show {
+            padding: 25px 30px;
+            max-height: 600px;
+        }
+
+        .rules-list {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .rules-list li {
+            margin-bottom: 14px;
+            padding-left: 8px;
+            line-height: 1.5;
+        }
+
+        .rule-category {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 5px;
+            font-size: 0.75em;
+            font-weight: bold;
+            margin-right: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .category-important { background: linear-gradient(135deg, rgba(244, 67, 54, 0.25), rgba(244, 67, 54, 0.4)); color: #ff8a80; border: 1px solid rgba(244, 67, 54, 0.3); }
+        .category-gameplay { background: linear-gradient(135deg, rgba(255, 152, 0, 0.25), rgba(255, 152, 0, 0.4)); color: #ffcc80; border: 1px solid rgba(255, 152, 0, 0.3); }
+        .category-communication { background: linear-gradient(135deg, rgba(76, 175, 80, 0.25), rgba(76, 175, 80, 0.4)); color: #a5d6a7; border: 1px solid rgba(76, 175, 80, 0.3); }
+        .category-technical { background: linear-gradient(135deg, rgba(33, 150, 243, 0.25), rgba(33, 150, 243, 0.4)); color: #90caf9; border: 1px solid rgba(33, 150, 243, 0.3); }
+
+        /* Кнопки действий */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin: 50px 0;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s;
+            min-width: 220px;
+            text-align: center;
+            gap: 15px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-rust), #ff8a50);
+            color: white;
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.5);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #ff8a50, var(--accent-rust));
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 12px 30px rgba(255, 107, 53, 0.7);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent-gold);
+            border: 2px solid var(--accent-gold);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 209, 102, 0.15);
+            transform: translateY(-5px) scale(1.05);
+        }
+
+        .btn-rules {
+            background: linear-gradient(135deg, #2d3047, #3a3e5c);
+            color: var(--text-light);
+            border: 2px solid var(--text-dim);
+        }
+
+        .btn-rules:hover {
+            background: linear-gradient(135deg, #3a3e5c, #2d3047);
+            border-color: var(--accent-gold);
+            transform: translateY(-5px);
+        }
+
+        /* Блок подключения */
+        .connect-box {
+            background: rgba(26, 26, 46, 0.9);
+            padding: 35px;
+            border-radius: 18px;
+            text-align: center;
+            margin-top: 50px;
+            border: 2px dashed var(--accent-gold);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .ip-address {
+            font-family: 'Courier New', monospace;
+            font-size: 2.2em;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6));
+            padding: 20px;
+            border-radius: 10px;
+            color: var(--accent-gold);
+            margin: 25px 0;
+            display: inline-block;
+            letter-spacing: 1.5px;
+            border: 1px solid rgba(255, 209, 102, 0.2);
+            font-weight: bold;
+        }
+
+        .copy-ip {
+            background: rgba(255, 209, 102, 0.1);
+            border: 1px solid var(--accent-gold);
+            color: var(--accent-gold);
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: all 0.2s;
+            font-size: 0.9em;
+        }
+
+        .copy-ip:hover {
+            background: rgba(255, 209, 102, 0.2);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .server-title { font-size: 2.5em; }
+            .features { grid-template-columns: 1fr; }
+            .action-buttons { flex-direction: column; align-items: center; gap: 20px; }
+            .btn { width: 90%; padding: 18px; }
+            .rules-header { padding: 18px 20px; }
+            .section-title { font-size: 1.8em; }
+            .online-badge { min-width: 250px; padding: 15px 25px; }
+            .ip-address { font-size: 1.6em; padding: 15px; }
         }
     </style>
 </head>
 <body>
-
-<header>
     <div class="container">
-        <h1>UNISOUL RUST</h1>
-        <p>Комфортный Rust сервер для новичков<br>
-        • x2 • WIPE FRIDAY</p>
-        <a class="btn" href="https://unisoulrust.gamestores.app/shop">ПЕРЕЙТИ В МАГАЗИН</a>
-        <a class="btn" href="">ПРАВИЛА</a>
-        <a class="btn" href="">ДИСКОРД</a>
-        <a class="btn" href="">ВК</a>
-    </div>
-</header>
-
-<section class="container">
-    <h2>🎮 Наш сервер</h2>
-    <div class="servers">
-        <div class="card">
-            <h3>UNISOUL RUST | 2х | Для новичков</h3>
-            <p>
-                • Для новичков<br>
-                • Без Pay-to-Win<br>
-                • NO BP WIPE<br>
-                • Вайп каждую пятницу
-            </p>
-            <div class="connect">
-                connect 185.189.255.162:35800
+        <header class="header">
+            <h1 class="server-title">UNISOUL RUST</h1>
+            <p class="server-subtitle">Комфортный сервер для новичков • x2 • WIPE FRIDAY</p>
+            
+            <!-- ОНЛАЙН СТАТУС С РАБОТАЮЩИМ API -->
+            <div class="online-badge" id="onlineBadge">
+                <div style="font-size: 1.8em; margin-bottom: 5px;">
+                    Онлайн: <span id="online-counter" style="font-weight: 800;">--</span>
+                </div>
+                <div class="server-status">
+                    <span id="status-indicator" class="status-indicator status-checking"></span>
+                    <span id="status-text">Загрузка статуса...</span>
+                    <button class="refresh-btn" onclick="updateServerStatus()" title="Обновить">⟳</button>
+                </div>
+                <div class="online-details" id="online-details">Подключение к серверу...</div>
+                <div class="last-update" id="last-update">Онлайн обновляется автоматически</div>
             </div>
-        </div>
+        </header>
+
+        <main>
+            <section class="features">
+                <div class="feature-card">
+                    <h3>🎮 Наш сервер</h3>
+                    <p><strong>UNISOUL RUST | 2x | Для новичков</strong></p>
+                    <ul>
+                        <li>Для новичков</li>
+                        <li>Без Pay-to-Win</li>
+                        <li>NO BP WIPE</li>
+                        <li>Вайп каждую пятницу</li>
+                    </ul>
+                    <div style="margin-top: 20px; text-align: center;">
+                        <div class="ip-address">185.189.255.162:35800</div>
+                        <button class="copy-ip" onclick="copyIP()">Копировать IP</button>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <h3>🛡 Почему мы?</h3>
+                    <ul>
+                        <li><strong>✅ Активная администрация</strong> — всегда на связи</li>
+                        <li><strong>✅ Античит включён</strong> — честная игра</li>
+                        <li><strong>✅ Без донатного дисбаланса</strong> — только косметика</li>
+                        <li><strong>✅ Комфортная PvE-атмосфера</strong> — идеально для обучения</li>
+                        <li><strong>✅ Сохранение чертежей</strong> — ваш прогресс в безопасности</li>
+                    </ul>
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(255, 107, 53, 0.1); border-radius: 8px; border-left: 4px solid var(--accent-rust);">
+                        <strong>🔥 Актуальный онлайн:</strong>
+                        <div id="current-stats" style="margin-top: 8px; font-size: 1.1em;">
+                            <span id="current-online">--</span> игроков сейчас на сервере
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="action-buttons">
+                <a href="https://example.com/shop" class="btn btn-primary" target="_blank">🛒 МАГАЗИН</a>
+                <a href="#" class="btn btn-secondary" onclick="connectToServer(); return false;">🎮 ПОДКЛЮЧИТЬСЯ</a>
+                <a href="#rules" class="btn btn-rules" onclick="scrollToRules(); return false;">📜 ПРАВИЛА СЕРВЕРА</a>
+            </div>
+
+            <!-- РАЗДЕЛ: ПРАВИЛА -->
+            <h2 class="section-title" id="rules">📜 Правила сервера</h2>
+            <div class="rules-container">
+                <div class="rules-accordion">
+                    <!-- Правило 1 -->
+                    <div class="rules-item">
+                        <div class="rules-header" onclick="toggleRule(1)">
+                            <div class="rules-title">
+                                <span class="rules-icon">⚔️</span> Основные правила поведения
+                            </div>
+                            <div class="rules-arrow">▼</div>
+                        </div>
+                        <div class="rules-content" id="rule-content-1">
+                            <ul class="rules-list">
+                                <li><span class="rule-category category-important">ВАЖНО</span> Уважайте других игроков и администрацию</li>
+                                <li><span class="rule-category category-communication">ОБЩЕНИЕ</span> Запрещены оскорбления, расизм, троллинг в чате</li>
+                                <li><span class="rule-category category-technical">ТЕХНИЧЕСКОЕ</span> Читы, багоюз, эксплойты — перманентный бан</li>
+                                <li><span class="rule-category category-gameplay">ГЕЙМПЛЕЙ</span> Запрещена блокировка важных локаций (ресурсных зон, монументов)</li>
+                                <li><span class="rule-category category-communication">ОБЩЕНИЕ</span> Реклама других серверов без согласования с администрацией запрещена</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Правило 2 -->
+                    <div class="rules-item">
+                        <div class="rules-header" onclick="toggleRule(2)">
+                            <div class="rules-title">
+                                <span class="rules-icon">🏠</span> Правила строительства
+                            </div>
+                            <div class="rules-arrow">▼</div>
+                        </div>
+                        <div class="rules-content" id="rule-content-2">
+                            <ul class="rules-list">
+                                <li><span class="rule-category category-gameplay">ГЕЙМПЛЕЙ</span> Запрещено строить в радиусе 50м от монументов (военных ящиков)</li>
+                                <li><span class="rule-category category-gameplay">ГЕЙМПЛЕЙ</span> Максимальный размер клана/группы: 5 человек</li>
+                                <li><span class="rule-category category-technical">ТЕХНИЧЕСКОЕ</span> Запрещены авто-туррели в избыточном количестве (спам)</li>
+                                <li><span class="rule-category category-gameplay">ГЕЙМПЛЕЙ</span> Нельзя полностью блокировать доступ к ресурсным зонам</li>
+                                <li><span class="rule-category category-important">ВАЖНО</span> Администрация оставляет за собой право снести постройку, нарушающую правила</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Правило 3 -->
+                    <div class="rules-item">
+                        <div class="rules-header" onclick="toggleRule(3)">
+                            <div class="rules-title">
+                                <span class="rules-icon">🛡️</span> PvE и взаимодействие
+                            </div>
+                            <div class="rules-arrow">▼</div>
+                        </div>
+                        <div class="rules-content" id="rule-content-3">
+                            <ul class="rules-list">
+                                <li><span class="rule-category category-gameplay">ГЕЙМПЛЕЙ</span> Сервер ориентирован на PvE, но PvP разрешён</li>
+                                <li><span class="rule-category category-important">ВАЖНО</span> Запрещён гриферство новичкам (игрокам младше 3 дней на сервере)</li>
+                                <li><span class="rule-category category-communication">ОБЩЕНИЕ</span> Дружественный фарм и торговля приветствуются</li>
+                                <li><span class="rule-category category-gameplay">ГЕЙМПЛЕЙ</span> Разрешены рейды, но запрещено уничтожение всей базы "под ноль"</li>
+                                <li><span class="rule-category category-important">ВАЖНО</span> Новичкам (до 7 дней) предоставляется защита от рейдов</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="connect-box">
+                <h3 style="font-size: 1.8em; margin-bottom: 20px; color: var(--accent-gold);">🚀 Быстрое подключение</h3>
+                <p style="font-size: 1.1em; margin: 10px 0;">1. Откройте консоль в игре Rust (клавиша <strong>F1</strong>)</p>
+                <p style="font-size: 1.1em; margin: 10px 0;">2. Введите команду: <code style="background: rgba(0,0,0,0.3); padding: 8px 15px; border-radius: 5px; font-family: monospace;">client.connect 185.189.255.162:35800</code></p>
+                <p style="font-size: 1.1em; margin: 10px 0 25px;">3. Нажмите Enter и начинайте играть!</p>
+                
+                <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <p style="color: var(--text-dim); font-size: 0.9em;">Сервер онлайн 24/7 • Автоматические бэкапы • Техническая поддержка в Discord</p>
+                </div>
+            </div>
+        </main>
     </div>
-</section>
 
-<section class="container">
-    <h2>🛡 Почему мы?</h2>
-    <div class="features">
-        <div class="card">✅ Активная администрация</div>
-        <div class="card">✅ Античит включён</div>
-        <div class="card">✅ Честная игра</div>
-        <div class="card">✅ Без донатного дисбаланса</div>
-    </div>
-</section>
-
-<section class="container">
-    <h2>🌐 Сообщество</h2>
-    <div class="features">
-        <div class="card">
-            Discord<br>
-            <a href="#">discord.gg/yourdiscord</a>
-        </div>
-        <div class="card">
-            Telegram<br>
-            <a href="#">t.me/unisoulrust</a>
-        </div>
-    </div>
-</section>
-
-<footer>
-    <div class="container">
-        © 2026 UNISOUL RUST — фанатский игровой проект<br>
-        Проект не связан с Facepunch Studios<br><br>
-
-        Контакты: support@unisoulrust.ru<br><br>
-
-        <a href="#">Пользовательское соглашение</a> |
-        <a href="#">Политика конфиденциальности</a> |
-        <a href="#">Политика возвратов</a>
-    </div>
-</footer>
-
+    <script>
+        // КОНФИГУРАЦИЯ - РАБОЧИЙ ID ВАШЕГО СЕРВЕРА
+        const BATTLEMETRICS_SERVER_ID = "23139998"; // РАБОЧИЙ ID вашего сервера!
+        
+        // Переменные для управления обновлением
+        let updateInterval = 60000; // 60 секунд
+        let lastUpdateTime = null;
+        let isUpdating = false;
+        
+        // Основная функция получения онлайн-статуса
+        async function getServerStatus() {
+            if (isUpdating) return;
+            isUpdating = true;
+            
+            const counter = document.getElementById('online-counter');
+            const indicator = document.getElementById('status-indicator');
+            const statusText = document.getElementById('status-text');
+            const details = document.getElementById('online-details');
+            const lastUpdate = document.getElementById('last-update');
+            const currentStats = document.getElementById('current-online');
+            const onlineBadge = document.getElementById('onlineBadge');
+            
+            try {
+                // Показываем статус загрузки
+                indicator.className = 'status-indicator status-checking';
+                statusText.textContent = 'Обновление...';
+                counter.textContent = '--';
+                
+                // Запрос к BattleMetrics API
+                console.log('Запрос данных сервера...');
+                const response = await fetch(`https://api.battlemetrics.com/servers/${BATTLEMETRICS_SERVER_ID}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Ошибка API: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Извлекаем данные
+                const players = data.data.attributes.players;
+                const maxPlayers = data.data.attributes.maxPlayers;
+                const serverName = data.data.attributes.name;
+                const map = data.data.attributes.details?.map || 'Процедурная карта';
+                const isOnline = data.data.attributes.status === 'online';
+                
+                // Форматируем время
+                const now = new Date();
+                lastUpdateTime = now;
+                const timeString = now.toLocaleTimeString('ru-RU', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                
+                // Обновляем интерфейс
+                counter.textContent = `${players}/${maxPlayers}`;
+                currentStats.textContent = `${players} из ${maxPlayers}`;
+                
+                if (isOnline) {
+                    indicator.className = 'status-indicator status-online';
+                    statusText.textContent = 'Сервер работает';
+                    details.textContent = `${serverName} | Карта: ${map}`;
+                    
+                    // Меняем цвет баджа в зависимости от заполненности
+                    const fillPercentage = (players / maxPlayers) * 100;
+                    onlineBadge.classList.remove('high', 'medium');
+                    
+                    if (fillPercentage > 75) {
+                        onlineBadge.classList.add('high');
+                        details.textContent += ' | 🔥 Высокая активность!';
+                    } else if (fillPercentage > 40) {
+                        onlineBadge.classList.add('medium');
+                        details.textContent += ' | 👍 Средняя активность';
+                    } else {
+                        details.textContent += ' | 👌 Можно зайти';
+                    }
+                } else {
+                    indicator.className = 'status-indicator status-offline';
+                    statusText.textContent = 'Сервер offline';
+                    details.textContent = 'Сервер временно недоступен';
+                    counter.textContent = '0/100';
+                    currentStats.textContent = '0 из 100';
+                }
+                
+                lastUpdate.textContent = `Обновлено: ${timeString}`;
+                
+                console.log(`Статус обновлен: ${players}/${maxPlayers} игроков, онлайн: ${isOnline}`);
+                
+            } catch (error) {
+                console.error('Ошибка получения статуса:', error);
+                
+                // Показываем ошибку
+                indicator.className = 'status-indicator status-offline';
+                statusText.textContent = 'Ошибка подключения';
+                details.textContent = 'Не удалось получить данные сервера';
+                lastUpdate.textContent = 'Попытка переподключения...';
+                currentStats.textContent = '--';
+                
+                // Пробуем снова через 10 секунд
+                setTimeout(updateServerStatus, 10000);
+            } finally {
+                isUpdating = false;
+            }
+        }
+        
+        // Функция для ручного обновления
+        function updateServerStatus() {
+            getServerStatus();
+        }
+        
+        // Функция для автоматического обновления
+        function startAutoUpdate() {
+            // Первое обновление сразу
+            updateServerStatus();
+            
+            // Затем каждые 60 секунд
+            setInterval(updateServerStatus, updateInterval);
+            
+            // Также обновляем при возвращении на вкладку
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    updateServerStatus();
+                }
+            });
+        }
+        
+        // Копирование IP
+        function copyIP() {
+            const ip = '185.189.255.162:35800';
+            navigator.clipboard.writeText(`client.connect ${ip}`)
+                .then(() => {
+                    const btn = event.target;
+                    const originalText = btn.textContent;
+                    btn.textContent = '✓ Скопировано!';
+                    btn.style.background = 'rgba(76, 175, 80, 0.2)';
+                    btn.style.borderColor = '#4CAF50';
+                    btn.style.color = '#4CAF50';
+                    
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.style.background = 'rgba(255, 209, 102, 0.1)';
+                        btn.style.borderColor = 'var(--accent-gold)';
+                        btn.style.color = 'var(--accent-gold)';
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Ошибка копирования:', err);
+                    alert('Не удалось скопировать IP. Скопируйте вручную: ' + ip);
+                });
+        }
+        
+        // Подключение к серверу
+        function connectToServer() {
+            const ip = '185.189.255.162:35800';
+            
+            // Проверяем статус сервера
+            const indicator = document.getElementById('status-indicator');
+            const isOnline = indicator.classList.contains('status-online');
+            
+            if (!isOnline && !indicator.classList.contains('status-checking')) {
+                if (!confirm('Сервер может быть offline. Все равно подключиться?')) {
+                    return;
+                }
+            }
+            
+            const command = `client.connect ${ip}`;
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(command)
+                    .then(() => {
+                        alert(`IP сервера скопирован в буфер обмена!\n\nВставьте в консоль Rust (F1):\n${command}`);
+                    })
+                    .catch(err => {
+                        alert(`IP сервера: ${ip}\n\nВведите в консоли Rust (F1):\n${command}`);
+                    });
+            } else {
+                alert(`IP сервера: ${ip}\n\nВведите в консоли Rust (F1):\n${command}`);
+            }
+        }
+        
+        // Функции для правил (аккордеон)
+        function toggleRule(ruleNumber) {
+            const content = document.getElementById(`rule-content-${ruleNumber}`);
+            const header = content.previousElementSibling;
+            
+            content.classList.toggle('show');
+            header.classList.toggle('active');
+        }
+        
+        function scrollToRules() {
+            document.getElementById('rules').scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('UNISOUL RUST сайт загружен');
+            console.log('Используется BattleMetrics ID:', BATTLEMETRICS_SERVER_ID);
+            
+            // Запускаем автообновление онлайн
+            startAutoUpdate();
+            
+            // Открываем первое правило
+            setTimeout(() => toggleRule(1), 800);
+            
+            // Добавляем интерактивность для карточек
+            document.querySelectorAll('.feature-card').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    if (!e.target.closest('a') && !e.target.closest('button')) {
+                        this.style.transform = 'scale(0.98)';
+                        setTimeout(() => {
+                            this.style.transform = '';
+                        }, 150);
+                    }
+                });
+            });
+        });
+        
+        // Показываем время с последнего обновления
+        setInterval(() => {
+            if (lastUpdateTime) {
+                const now = new Date();
+                const diff = Math.floor((now - lastUpdateTime) / 1000);
+                const minutes = Math.floor(diff / 60);
+                const seconds = diff % 60;
+                
+                const updateEl = document.getElementById('last-update');
+                if (updateEl) {
+                    if (diff < 60) {
+                        updateEl.textContent = `Обновлено ${diff} сек. назад`;
+                    } else {
+                        updateEl.textContent = `Обновлено ${minutes} мин. назад`;
+                    }
+                }
+            }
+        }, 10000);
+    </script>
 </body>
 </html>
