@@ -1,9 +1,8 @@
 {
   "builds": [
     {
-      "src": "src/main.rs",
-      "use": "@vercel-community/rust"
+      "src": "*.html",
+      "use": "@vercel/static"
     }
-  ],
-  "redirects": []
+  ]
 }
